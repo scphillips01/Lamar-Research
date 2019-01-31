@@ -64,34 +64,34 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   
-  data <- reactive({
+  df <- reactive({
     req(input$file1)
     inFile <- input$file1
-    df <- read.csv(inFile$datapath, header = input$header, sep = input$sep,
-                   quote = input$quote)
-    
+    read.csv(inFile$datapath, header = input$header, sep = input$sep,
+             quote = input$quote)
+  })
+  
+  observe({
     updateSelectInput(session, inputId = "xcol", label = "X Variable",
-                      choices = names(df), selected = names(df))
+                      choices = names(df()), selected = names(df()))
     updateSelectInput(session, inputId = "ycol", label = "Y Variable",
-                      choices = names(df), selected = names(df)[2])
-    
-    return(df)
+                      choices = names(df()), selected = names(df())[2])
   })
   
   output$contents <- renderTable({
-    data()
-    
+    df()
   })
   
   
 #This does not work, I keep getting the error "argument "x" is missing, with no default"
   #so I'm trying to fix that
-  #output$MyPlot <- renderPlot({
-    #df() %>%
-      #ggvis(~xcol(), ~ycol(), fill := "deepskyblue3") %>%
-      #layer_points() %>%
-      #layer_model_predictions(model = "lm", se = TRUE)
-  #})
+  output$MyPlot <- renderPlot({
+    df() %>% ggplot(aes_string(x = input$xcol, y = input$ycol)) + geom_point()
+    # df() %>%
+    #   ggvis(~ input$xcol, ~ input$ycol, fill := "deepskyblue3") %>%
+    #   layer_points() %>%
+    #   layer_model_predictions(model = "lm", se = TRUE)
+  })
   
   #This works but is very basic  
   #output$MyPlot <- renderPlot({
@@ -104,7 +104,7 @@ server <- function(input, output, session) {
   #})
    
   output$summary <- renderPrint({
-    y <- data()
+    y <- df()
     summary(y)
   })
     
