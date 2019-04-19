@@ -8,6 +8,10 @@
 #
 
 library(shiny)
+library(readxl)
+
+fac <- read_excel("vahumane_facilities.xlsx")
+stat <- read_excel("vahumane_stats.xlsx")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
